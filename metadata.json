@@ -1,0 +1,5 @@
+{
+  "name": "Obsidianatomizer",
+  "description": "An AI-powered tool to transform raw text into a network of atomic, interlinked Obsidian notes. It automatically generates titles, summaries, tags, and a Map of Content (MOC), then exports everything in a ready-to-use ZIP file.",
+  "requestFramePermissions": []
+}

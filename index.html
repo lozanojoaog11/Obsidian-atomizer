@@ -1,0 +1,84 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Obsidianatomizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+      // Mock process.env for browser environment
+      var process = {
+        env: {
+          API_KEY: '' // This will be populated from localStorage
+        }
+      };
+    </script>
+    <style>
+      body {
+        font-family: 'Inter', sans-serif;
+      }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: #1f2937;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #4b5563;
+        border-radius: 4px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #6b7280;
+      }
+      
+      /* Basic prose styles for rendered markdown */
+      .prose { color: #d1d5db; }
+      .prose h1, .prose h2, .prose h3, .prose h4 { color: #fff; margin-top: 1.2em; margin-bottom: 0.6em; }
+      .prose h1 { font-size: 1.875rem; }
+      .prose h2 { font-size: 1.5rem; }
+      .prose h3 { font-size: 1.25rem; }
+      .prose a { color: #60a5fa; text-decoration: none; }
+      .prose a:hover { text-decoration: underline; }
+      .prose strong { color: #fff; }
+      .prose blockquote { border-left: 2px solid #4b5563; padding-left: 1em; color: #9ca3af; }
+      .prose code { background-color: #374151; color: #e5e7eb; padding: 0.2em 0.4em; margin: 0; font-size: 85%; border-radius: 3px; }
+      .prose pre { background-color: #1f2937; padding: 1em; border-radius: 6px; overflow-x: auto; }
+      .prose pre code { background-color: transparent; padding: 0; }
+      .prose ul, .prose ol { margin-left: 1.5em; }
+      .prose li > p { margin: 0; }
+      .prose table { width: 100%; border-collapse: collapse; }
+      .prose th, .prose td { border: 1px solid #4b5563; padding: 0.5em 1em; }
+      .prose th { font-weight: 600; background-color: #374151; }
+      
+      /* Invert for dark mode */
+      .prose-invert h1, .prose-invert h2, .prose-invert h3, .prose-invert h4, .prose-invert strong { color: #f9fafb; }
+      .prose-invert { color: #d1d5db; }
+      .prose-invert a { color: #93c5fd; }
+      .prose-invert blockquote { border-left-color: #6b7280; color: #9ca3af; }
+      .prose-invert code { background-color: #4b5563; }
+      .prose-invert pre { background-color: #111827; }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://esm.sh/react@^19.1.1/",
+    "react": "https://esm.sh/react@^19.1.1",
+    "react-dom/": "https://esm.sh/react-dom@^19.1.1/",
+    "@google/genai": "https://esm.sh/@google/genai@^1.15.0",
+    "react-markdown": "https://esm.sh/react-markdown@^9.0.1",
+    "remark-gfm": "https://esm.sh/remark-gfm@^4.0.0"
+  }
+}
+</script>
+</head>
+  <body class="bg-gray-900 text-gray-300">
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
