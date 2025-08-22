@@ -17,10 +17,10 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ splitOptions, setSplitOpt
 
     return (
         <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 h-full">
-            <h3 className="text-lg font-semibold text-white mb-4">Splitting Adjustments</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">Ajustes de Divisão</h3>
             <div className="space-y-4">
                 <div>
-                    <label htmlFor="minLen" className="block text-sm font-medium text-gray-400">Min Words: {splitOptions.minLen}</label>
+                    <label htmlFor="minLen" className="block text-sm font-medium text-gray-400">Mín. Palavras: {splitOptions.minLen}</label>
                     <input
                         type="range"
                         id="minLen"
@@ -33,7 +33,7 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ splitOptions, setSplitOpt
                     />
                 </div>
                 <div>
-                    <label htmlFor="maxLen" className="block text-sm font-medium text-gray-400">Max Words: {splitOptions.maxLen}</label>
+                    <label htmlFor="maxLen" className="block text-sm font-medium text-gray-400">Máx. Palavras: {splitOptions.maxLen}</label>
                     <input
                         type="range"
                         id="maxLen"
@@ -46,21 +46,21 @@ const SettingsPanel: React.FC<SettingsPanelProps> = ({ splitOptions, setSplitOpt
                     />
                 </div>
                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-400">Split by Headings (#)</span>
+                    <span className="text-sm font-medium text-gray-400">Dividir por Títulos (#)</span>
                      <label htmlFor="useHeadings" className="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="useHeadings" className="sr-only peer" checked={splitOptions.useHeadings} onChange={(e) => handleOptionChange('useHeadings', e.target.checked)} />
                         <div className="w-11 h-6 bg-gray-600 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                     </label>
                 </div>
                 <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-400">Split by Timestamps</span>
+                    <span className="text-sm font-medium text-gray-400">Dividir por Timestamps</span>
                     <label htmlFor="useTimestamps" className="relative inline-flex items-center cursor-pointer">
                         <input type="checkbox" id="useTimestamps" className="sr-only peer" checked={splitOptions.useTimestamps} onChange={(e) => handleOptionChange('useTimestamps', e.target.checked)} />
                         <div className="w-11 h-6 bg-gray-600 rounded-full peer peer-focus:ring-4 peer-focus:ring-blue-800 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"></div>
                     </label>
                 </div>
                 <Button onClick={onReAtomize} className="w-full">
-                    Re-Atomize
+                    Re-Atomizar
                 </Button>
             </div>
         </div>

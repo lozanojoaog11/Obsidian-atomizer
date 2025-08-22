@@ -46,8 +46,8 @@ const InputSection: React.FC<InputSectionProps> = ({ inputText, setInputText, pr
     return (
         <div className="flex-grow flex flex-col space-y-6">
             <div className="text-center">
-                <h2 className="text-3xl font-bold text-white">From Raw Text to Atomic Notes</h2>
-                <p className="mt-2 text-lg text-gray-400">Transform your content into a linked knowledge base with one click.</p>
+                <h2 className="text-3xl font-bold text-white">De Texto Bruto a Notas Atômicas</h2>
+                <p className="mt-2 text-lg text-gray-400">Transforme seu conteúdo em uma base de conhecimento conectada com um clique.</p>
             </div>
 
             <div 
@@ -58,13 +58,13 @@ const InputSection: React.FC<InputSectionProps> = ({ inputText, setInputText, pr
                 <textarea
                     value={inputText}
                     onChange={(e) => setInputText(e.target.value)}
-                    placeholder="Paste your raw text here, or drop a .txt/.md file..."
+                    placeholder="Cole seu texto bruto aqui, ou arraste um arquivo .txt/.md..."
                     className="flex-grow w-full bg-gray-800 border-none rounded-md p-4 text-gray-300 placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none custom-scrollbar"
                 />
                  <div className="text-center mt-4 text-gray-500">
-                    or
+                    ou
                     <label htmlFor="file-upload" className="ml-2 font-semibold text-blue-500 hover:text-blue-400 cursor-pointer">
-                        Upload a file
+                        Carregue um arquivo
                     </label>
                     <input id="file-upload" name="file-upload" type="file" className="sr-only" accept=".txt,.md" onChange={handleFileSelect}/>
                 </div>
@@ -75,11 +75,11 @@ const InputSection: React.FC<InputSectionProps> = ({ inputText, setInputText, pr
                     type="text"
                     value={projectName}
                     onChange={(e) => setProjectName(e.target.value)}
-                    placeholder="Enter project name (optional)"
+                    placeholder="Digite o nome do projeto (opcional)"
                     className="w-full sm:flex-grow bg-gray-800 border border-gray-600 rounded-md py-2 px-4 text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:outline-none"
                 />
                 <Button onClick={onAtomize} className="w-full sm:w-auto" disabled={!inputText.trim()}>
-                    Atomize Text
+                    Atomizar Texto
                 </Button>
             </div>
         </div>

@@ -21,10 +21,10 @@ const PreviewSection: React.FC<PreviewSectionProps> = ({ notes, updateNote, spli
             {/* Main Content: Notes List */}
             <div className="flex-grow md:w-2/3 flex flex-col">
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-2xl font-bold text-white">Generated Notes ({notes.length})</h2>
+                    <h2 className="text-2xl font-bold text-white">Notas Geradas ({notes.length})</h2>
                     <div className="flex space-x-2">
-                       <Button onClick={onStartOver} variant="secondary">Start Over</Button>
-                       <Button onClick={onExport}>Export .zip</Button>
+                       <Button onClick={onStartOver} variant="secondary">Começar de Novo</Button>
+                       <Button onClick={onExport}>Exportar .zip</Button>
                     </div>
                 </div>
                 <div className="flex-grow overflow-y-auto space-y-4 pr-2 custom-scrollbar">

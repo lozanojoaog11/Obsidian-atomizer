@@ -23,38 +23,38 @@ const SettingsModal: React.FC<SettingsModalProps> = ({ settings, onSave, onClose
 
     const footer = (
         <div className="space-x-2">
-            <Button variant="secondary" onClick={onClose}>Cancel</Button>
-            <Button onClick={handleSave}>Save Settings</Button>
+            <Button variant="secondary" onClick={onClose}>Cancelar</Button>
+            <Button onClick={handleSave}>Salvar Configurações</Button>
         </div>
     );
 
     return (
-        <Modal title="Settings" onClose={onClose} footer={footer}>
+        <Modal title="Configurações" onClose={onClose} footer={footer}>
             <div className="space-y-4">
                 <div>
-                    <label htmlFor="apiMode" className="block text-sm font-medium text-gray-300">AI Enhancement Mode</label>
+                    <label htmlFor="apiMode" className="block text-sm font-medium text-gray-300">Modo de Aprimoramento com IA</label>
                     <select
                         id="apiMode"
                         value={currentSettings.apiMode}
                         onChange={(e) => handleChange('apiMode', e.target.value as 'mock' | 'api')}
                         className="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                     >
-                        <option value="mock">Local Heuristics Only</option>
+                        <option value="mock">Apenas Heurísticas Locais</option>
                         <option value="api">Google Gemini API</option>
                     </select>
                      <p className="mt-2 text-xs text-gray-400">
-                        Select 'Google Gemini API' to use AI for better summaries and tags. Requires an API key.
+                        Selecione 'Google Gemini API' para usar IA para melhores resumos e tags. Requer uma chave de API.
                     </p>
                 </div>
                  {currentSettings.apiMode === 'api' && (
                     <div className="animate-fade-in">
-                        <label htmlFor="apiKey" className="block text-sm font-medium text-gray-300">Google Gemini API Key</label>
+                        <label htmlFor="apiKey" className="block text-sm font-medium text-gray-300">Chave de API do Google Gemini</label>
                         <input
                             type="password"
                             id="apiKey"
                             value={currentSettings.apiKey}
                             onChange={(e) => handleChange('apiKey', e.target.value)}
-                            placeholder="Enter your API key"
+                            placeholder="Digite sua chave de API"
                             className="mt-1 block w-full bg-gray-700 border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                         />
                     </div>

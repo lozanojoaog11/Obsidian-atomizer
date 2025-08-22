@@ -24,7 +24,7 @@ const App: React.FC = () => {
     const [notes, setNotes] = useState<Note[]>([]);
     
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [loadingMessage, setLoadingMessage] = useState<string>('Atomizing text...');
+    const [loadingMessage, setLoadingMessage] = useState<string>('Atomizando texto...');
     const [currentView, setCurrentView] = useState<'input' | 'preview'>('input');
 
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
@@ -39,8 +39,6 @@ const App: React.FC = () => {
             setSettings(storedData.config || DEFAULT_SETTINGS);
             setTaxonomy(storedData.capsule || DEFAULT_TAXONOMY);
             setHistory(storedData.history || []);
-            // @ts-ignore
-            if (process && process.env) process.env.API_KEY = storedData.config?.apiKey || '';
         } else {
              // On first load, if there's no data, create the root key
             storageService.saveData({
@@ -61,22 +59,20 @@ const App: React.FC = () => {
     const handleSettingsSave = (newSettings: Settings) => {
         setSettings(newSettings);
         storageService.saveSettings(newSettings);
-         // @ts-ignore
-        if (process && process.env) process.env.API_KEY = newSettings.apiKey;
-        showToast('Settings saved successfully!', 'success');
+        showToast('Configurações salvas com sucesso!', 'success');
         setIsSettingsModalOpen(false);
     };
     
     const handleTaxonomySave = (newTaxonomy: TaxonomyCapsule) => {
         setTaxonomy(newTaxonomy);
         storageService.saveTaxonomy(newTaxonomy);
-        showToast('Taxonomy capsule saved!', 'success');
+        showToast('Cápsula de taxonomia salva com sucesso!', 'success');
         setIsTaxonomyModalOpen(false);
     };
 
     const handleAtomize = useCallback(async () => {
         if (!inputText.trim()) {
-            showToast('Please enter some text to atomize.', 'error');
+            showToast('Por favor, insira um texto para atomizar.', 'error');
             return;
         }
         setIsLoading(true);
@@ -86,18 +82,18 @@ const App: React.FC = () => {
 
             if (settings.apiMode === 'api' && settings.apiKey) {
                 // New AI-powered workflow
-                setLoadingMessage('Analyzing content and planning note structure...');
-                const notePlan = await geminiService.planNoteStructure(inputText);
+                setLoadingMessage('Analisando o conteúdo e planejando a estrutura das notas...');
+                const notePlan = await geminiService.planNoteStructure(inputText, settings.apiKey);
 
                 if (!notePlan || notePlan.length === 0) {
-                    throw new Error("The AI couldn't create a plan from the text. Try different content or check the API key.");
+                    throw new Error("A IA não conseguiu criar um plano a partir do texto. Tente um conteúdo diferente ou verifique a chave da API.");
                 }
 
                 const allNoteTitles = notePlan.map(p => p.title);
 
                 for (let i = 0; i < notePlan.length; i++) {
                     const planItem = notePlan[i];
-                    setLoadingMessage(`Generating note ${i + 1} of ${notePlan.length}: "${planItem.title}"`);
+                    setLoadingMessage(`Gerando nota ${i + 1} de ${notePlan.length}: "${planItem.title}"`);
                     
                     // Ensure relations are valid titles from the plan
                     const validRelations = planItem.relations.filter(r => allNoteTitles.includes(r));
@@ -105,7 +101,8 @@ const App: React.FC = () => {
                     const noteContent = await geminiService.generateNoteContent(
                         { ...planItem, relations: validRelations },
                         inputText,
-                        taxonomy
+                        taxonomy,
+                        settings.apiKey
                     );
                     
                     const slug = atomizerService.slugify(planItem.title);
@@ -125,9 +122,9 @@ const App: React.FC = () => {
                 }
             } else {
                 // Fallback to original local heuristic method
-                setLoadingMessage('Splitting text into chunks...');
+                setLoadingMessage('Dividindo o texto em partes...');
                 const chunks = atomizerService.splitText(inputText, splitOptions);
-                setLoadingMessage(`Generating titles for ${chunks.length} notes...`);
+                setLoadingMessage(`Gerando títulos para ${chunks.length} notas...`);
 
                 let tempNotes: Note[] = chunks.map((chunk, index) => {
                     const title = atomizerService.generateTitle(chunk, taxonomy.stopwords);
@@ -146,7 +143,7 @@ const App: React.FC = () => {
                         relations: [],
                     };
                 });
-                setLoadingMessage('Suggesting backlinks...');
+                setLoadingMessage('Sugerindo backlinks...');
                 generatedNotes = atomizerService.suggestBacklinks(tempNotes, 0.18);
             }
             
@@ -155,7 +152,7 @@ const App: React.FC = () => {
 
         } catch (error) {
             console.error("Atomization failed:", error);
-            showToast(error instanceof Error ? error.message : 'An unknown error occurred during atomization.', 'error');
+            showToast(error instanceof Error ? error.message : 'Ocorreu um erro desconhecido durante a atomização.', 'error');
         } finally {
             setIsLoading(false);
         }
@@ -163,16 +160,16 @@ const App: React.FC = () => {
 
     const handleExport = useCallback(async () => {
         if (notes.length === 0) {
-            showToast('No notes to export.', 'error');
+            showToast('Nenhuma nota para exportar.', 'error');
             return;
         }
         setIsLoading(true);
-        setLoadingMessage('Generating MOC and preparing ZIP...');
+        setLoadingMessage('Gerando MOC e preparando o ZIP...');
         try {
             const finalProjectName = projectName || `Project-${new Date().toISOString().split('T')[0]}`;
             const mocContent = atomizerService.generateMoc(notes, finalProjectName);
             
-            setLoadingMessage('Creating ZIP file...');
+            setLoadingMessage('Criando arquivo ZIP...');
             await atomizerService.createZip(notes, mocContent, finalProjectName);
 
             const newHistoryItem: HistoryItem = {
@@ -185,10 +182,10 @@ const App: React.FC = () => {
             setHistory(updatedHistory);
             storageService.saveHistory(updatedHistory);
 
-            showToast('ZIP file exported successfully!', 'success');
+            showToast('Arquivo ZIP exportado com sucesso!', 'success');
         } catch (error) {
             console.error("Export failed:", error);
-            showToast(error instanceof Error ? error.message : 'Failed to create ZIP file.', 'error');
+            showToast(error instanceof Error ? error.message : 'Falha ao criar o arquivo ZIP.', 'error');
         } finally {
             setIsLoading(false);
         }
