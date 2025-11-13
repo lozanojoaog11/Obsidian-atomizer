@@ -1,0 +1,20 @@
+# Core dependencies
+click>=8.1.0
+python-frontmatter>=1.0.0
+pyyaml>=6.0
+requests>=2.31.0
+
+# PDF processing
+pypdf>=3.17.0
+
+# CLI & UI
+rich>=13.7.0
+
+# Embeddings (optional, for semantic linking)
+chromadb>=0.4.0
+
+# Development
+pytest>=7.4.0
+pytest-cov>=4.1.0
+black>=23.0.0
+flake8>=6.1.0
