@@ -11,6 +11,7 @@ Core responsibility: 1 source → 1 literature note + 5-15 permanent notes
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 import json
+import uuid
 from datetime import datetime, timedelta
 import re
 
@@ -64,6 +65,9 @@ class DestiladorAgent:
             )
             permanent_notes.append(perm_note)
 
+        # Step 3.5: Update literature note with links to permanent notes
+        self._update_literature_note_with_links(literature_note, permanent_notes)
+
         # Step 4: Validate results
         validation = self._validate_destillation(
             literature_note, permanent_notes
@@ -89,8 +93,8 @@ class DestiladorAgent:
     ) -> Note:
         """Create literature note (source note)."""
 
-        # Generate ID
-        note_id = datetime.now().strftime("%Y%m%d%H%M%S")
+        # Generate unique ID (timestamp + UUID to prevent collisions)
+        note_id = f"{datetime.now().strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:8]}"
 
         # Extract bibliographic info
         source_type = metadata.get('source_type', 'unknown')
@@ -174,6 +178,26 @@ See permanent notes created from this source:
 - Layer 2: ⏳ Todo (when critical - highlight 10-20% of bold)
 - Layer 3: ⏳ Todo (executive summary)
 """
+
+    def _update_literature_note_with_links(
+        self,
+        literature_note: Note,
+        permanent_notes: List[Note]
+    ) -> None:
+        """Update literature note by replacing placeholder with actual links to permanent notes."""
+
+        # Build list of links
+        links_list = []
+        for note in permanent_notes:
+            links_list.append(f"- [[{note.metadata.title}]]")
+
+        links_text = "\n".join(links_list)
+
+        # Replace placeholder
+        literature_note.content = literature_note.content.replace(
+            "{{{{list_of_permanent_notes}}}}",
+            links_text
+        )
 
     def _extract_atomic_concepts(
         self,
@@ -325,8 +349,8 @@ Return JSON array of concepts (same format as before).
     ) -> Note:
         """Create one permanent note from concept."""
 
-        # Generate unique ID
-        note_id = datetime.now().strftime("%Y%m%d%H%M%S%f")[:16]
+        # Generate unique ID (timestamp + UUID to prevent collisions)
+        note_id = f"{datetime.now().strftime('%Y%m%d%H%M%S')}-{uuid.uuid4().hex[:8]}"
 
         # Create metadata
         perm_metadata = NoteMetadata(

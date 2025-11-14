@@ -12,6 +12,7 @@ Zettelkasten principle: Notes gain value through connections.
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 import re
+import json
 from datetime import datetime
 
 try:
@@ -300,7 +301,7 @@ Return ONLY valid JSON.
             # Parse JSON
             json_match = re.search(r'\[.*\]', response, re.DOTALL)
             if json_match:
-                connections = eval(json_match.group())  # Safe here, we control prompt
+                connections = json.loads(json_match.group())
             else:
                 return []
 
