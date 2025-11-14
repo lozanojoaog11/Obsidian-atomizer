@@ -134,35 +134,97 @@ class DestiladorAgent:
         metadata: Dict[str, Any],
         classification: Dict[str, Any]
     ) -> str:
-        """Render literature note body."""
+        """Render literature note body with epistemic structure."""
 
         title = metadata.get('title', 'Untitled')
         authors = metadata.get('authors', [])
         authors_str = ', '.join(authors) if authors else 'Unknown'
 
-        # Extract first 1000 chars as preview
-        preview = raw_text[:1000] + "..." if len(raw_text) > 1000 else raw_text
+        # Extract first 800 chars as preview
+        preview = raw_text[:800] + "..." if len(raw_text) > 800 else raw_text
+
+        # Calculate review date (7 days from now)
+        next_review = (datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d')
+        layer1_date = (datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d')
+        layer2_date = (datetime.now() + timedelta(days=30)).strftime('%Y-%m-%d')
+        layer3_date = (datetime.now() + timedelta(days=90)).strftime('%Y-%m-%d')
 
         return f"""# 📚 {title}
 
-> [!info] Bibliographic Info
+> [!info] Bibliographic Information
 > **Authors:** {authors_str}
-> **Source Type:** {metadata.get('source_type', 'unknown')}
+> **Type:** {metadata.get('source_type', 'unknown')}
 > **File:** {metadata.get('file_name', 'unknown')}
+> **Status:** 🌱 Seedling (captured, not yet processed)
 
 ---
 
-## 📋 Summary (Layer 0 - Raw Capture)
+## 📋 Layer 0: Raw Capture
+
+> [!question] Initial Questions
+> - What is the main thesis or argument?
+> - What evidence or examples support it?
+> - How does this connect to my existing knowledge?
 
 {preview}
 
 ---
 
-## 💎 Key Concepts
+## 💎 Permanent Notes Extracted
 
-See permanent notes created from this source:
+> [!tip] These atomic concepts were distilled from this source
 
 {{{{list_of_permanent_notes}}}}
+
+---
+
+## 🔄 Layer 1: Bold Key Passages
+
+> [!note] Progressive Summarization - Layer 1
+> When you first **USE** information from this source:
+> - Bold the 10-20% most important passages
+> - Focus on surprising insights or actionable advice
+
+**Instructions:**
+- Read through Raw Content below
+- Bold (`**text**`) the most valuable 10-20%
+- This becomes your "second read" layer
+
+**Target Date:** {layer1_date}
+
+---
+
+## ✨ Layer 2: Highlight Critical Insights
+
+> [!note] Progressive Summarization - Layer 2
+> When this becomes **CRITICAL** to a project:
+> - Highlight 10-20% of bolded text
+> - Use `==highlighted==` for absolute essentials
+
+**Target Date:** {layer2_date}
+
+---
+
+## 📝 Layer 3: Executive Summary
+
+> [!note] Progressive Summarization - Layer 3
+> When you need to **EXPLAIN** this to others:
+> - Write a 3-5 sentence summary
+> - Include key takeaways only
+
+**Target Date:** {layer3_date}
+
+---
+
+## 🔗 Connections
+
+> [!tip] How this relates to other knowledge
+
+### Related Sources
+- Add: `[[similar-source]]`
+
+### Relevant MOCs
+- {classification.get('lyt_mocs', [''])[0] if classification.get('lyt_mocs') else 'Add MOC link'}
 
 ---
 
@@ -172,11 +234,31 @@ See permanent notes created from this source:
 
 ---
 
-**Progressive Summarization:**
-- Layer 0: ✅ Complete (raw capture)
-- Layer 1: ⏳ Todo (when first used - bold 10-20%)
-- Layer 2: ⏳ Todo (when critical - highlight 10-20% of bold)
-- Layer 3: ⏳ Todo (executive summary)
+## ❓ Processing Questions
+
+> [!question] To deepen understanding
+> - [ ] What assumptions does the author make?
+> - [ ] What are potential weaknesses in the argument?
+> - [ ] How could I apply this practically?
+> - [ ] What questions does this raise?
+
+---
+
+## 🔄 Review Schedule
+
+> [!info] Spaced Repetition
+> Review at increasing intervals to move from 🌱 Seedling → 🌳 Evergreen
+
+**Review History:**
+- [ ] {layer1_date}: Check permanent notes, add bold (Layer 1)
+- [ ] {layer2_date}: Highlight critical passages if needed (Layer 2)
+- [ ] {layer3_date}: Create executive summary if needed (Layer 3)
+
+**Next Review:** {next_review}
+
+---
+
+**Meta:** This note follows BASB + LYT + Zettelkasten principles
 """
 
     def _update_literature_note_with_links(
@@ -391,65 +473,154 @@ Return JSON array of concepts (same format as before).
         concept: Dict[str, Any],
         literature_note: Note
     ) -> str:
-        """Render permanent note body."""
+        """Render permanent note body with epistemic structure."""
 
         applications_str = '\n'.join(f'- {app}' for app in concept.get('applications', []))
         connections_str = '\n'.join(f'- [[{conn}]]' for conn in concept.get('connections', []))
+
+        next_review = (datetime.now() + timedelta(days=7)).strftime('%Y-%m-%d')
 
         return f"""# {concept['title']}
 
 > [!abstract] Atomic Definition
 > **{concept['definition']}**
 >
-> *Progressive Summarization Layer 0 (raw capture)*
+> *This is a permanent note - a single, reusable concept*
+> **Type:** {concept.get('concept_type', 'concept')} | **Status:** 🌱 Seedling | **Confidence:** 75%
 
 ---
 
-## 🎯 Essência do Conceito
+## 🎯 What Is This?
 
-{concept.get('explanation', 'To be expanded')}
+> [!question] Core Understanding
+> - What is this, fundamentally?
+> - What makes it distinct?
+> - When does it apply?
+
+{concept.get('explanation', 'To be expanded through review')}
 
 ---
 
-## 💡 Por Que Importa?
+## 💡 Why Does This Matter?
+
+> [!question] Significance
+> - Why should I care about this?
+> - What problems does it solve?
+> - What becomes possible?
 
 {concept.get('why_matters', 'Significance to be elaborated')}
 
 ---
 
-## 🔬 Aplicações
+## 🔬 How to Apply This
 
-{applications_str if applications_str else '- To be identified'}
+> [!example] Practical Use Cases
 
----
+{applications_str if applications_str else '- To be identified through use'}
 
-## 🌐 Conexões
-
-> [!tip] Related Concepts
-> These connections will be refined by the Conector agent.
-
-{connections_str if connections_str else '- To be linked'}
+> [!question] My Applications
+> - [ ] Where can I use this in current projects?
+> - [ ] What experiments could test this?
+> - [ ] Real-world example I've observed?
 
 ---
 
-## 📚 Fonte
+## 🌐 Connections
 
-From: [[{literature_note.metadata.title}]]
+> [!tip] How this connects to the knowledge graph
+> Links will be enhanced by semantic analysis
+
+{connections_str if connections_str else '- Will be linked automatically'}
+
+> [!question] Additional Connections to Explore
+> - What must someone understand first? (Prerequisites)
+> - What does this enable? (Implications)
+> - What contradicts this? (Contrasts)
+
+**Manual additions:**
+- `[[]]` ← Prerequisite
+- `[[]]` → Enables
+- `[[]]` ⚔️ Contrasts
 
 ---
 
-## ❓ Questões Abertas
+## 🧪 Evidence & Examples
 
-> [!question] To Explore
-> - [ ] How does this connect to other domains?
-> - [ ] What are counter-examples or limitations?
-> - [ ] Are there practical experiments to validate?
+> [!note] What supports this concept?
+
+**From source:**
+{concept.get('explanation', '')[:200] + '...' if len(concept.get('explanation', '')) > 200 else concept.get('explanation', '')}
+
+**To add:**
+- [ ] Real-world observations
+- [ ] Counterexamples or limitations
+- [ ] Personal experiments
 
 ---
 
-**Status:** 🌱 Seedling (new, needs review and linking)
-**Próxima Revisão:** {datetime.now() + timedelta(days=7):%Y-%m-%d}
-**Confiança:** 75% | **Completude:** 60%
+## 📚 Source Trail
+
+> [!info] Intellectual lineage
+
+**Primary Source:** [[{literature_note.metadata.title}]]
+
+**Add related sources:**
+- `[[]]` ← Corroborates
+- `[[]]` ⚔️ Alternative view
+
+---
+
+## ❓ Open Questions
+
+> [!question] To explore further
+
+- [ ] How does this connect to related concepts?
+- [ ] What are the edge cases or limitations?
+- [ ] Can I test this practically?
+- [ ] How has my understanding evolved?
+
+**Personal questions:**
+-
+-
+
+---
+
+## 🔄 Evolution
+
+> [!info] Status Progression
+> Track journey from 🌱 Seedling → 🌳 Evergreen
+
+**Current Status:** 🌱 Seedling (new, needs review)
+
+**Path to Evergreen:**
+- [ ] ≥5 quality connections
+- [ ] Used in at least 1 project/output
+- [ ] Reviewed 3+ times
+- [ ] Evidence and examples added
+
+**Review History:**
+- {datetime.now().strftime('%Y-%m-%d')}: Created from literature note
+- Next: {next_review}
+
+---
+
+## 💭 Personal Notes
+
+> [!tip] Your unique perspective
+
+**My take on this:**
+
+
+**How I've used this:**
+
+
+**Surprising connections I found:**
+
+
+---
+
+**Confidence:** 75% (initial) | **Completeness:** 60% (needs depth)
+**Next Review:** {next_review}
 """
 
     def _validate_destillation(

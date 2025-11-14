@@ -26,28 +26,37 @@ def cli():
 @cli.command()
 @click.argument('input_path', type=click.Path(exists=True))
 @click.option('--vault', '-v', type=click.Path(), help='Vault path (default: current dir)')
-@click.option('--verbose', is_flag=True, help='Verbose output')
+@click.option('--verbose', is_flag=True, help='Show detailed processing steps')
 def process(input_path, vault, verbose):
     """
-    Process file through complete pipeline (Extract → Classify → Destill → Connect).
+    Transform documents into atomic notes with semantic connections.
+
+    Simply point to a file or folder - Cerebrum handles the rest.
 
     Examples:
         cerebrum process paper.pdf
-        cerebrum process inbox/article.md --vault ~/my-vault
-        cerebrum process file.pdf --verbose
+        cerebrum process inbox/ --vault ~/my-vault
+        cerebrum process paper.pdf --verbose
     """
-    console.print("\n[bold cyan]🧠 Cerebrum - Knowledge Refinement Pipeline[/bold cyan]\n")
+    console.print("\n[bold]🧠 Cerebrum[/bold] [dim]· It just works, beautifully[/dim]\n")
 
     input_path = Path(input_path)
     vault_path = Path(vault) if vault else Path.cwd()
 
-    # Initialize LLM
+    # Initialize LLM (quietly unless verbose)
     try:
-        console.print("🔌 Initializing LLM service...")
+        if verbose:
+            console.print("🔌 Initializing AI...")
         llm = LLMService.create_default()
-        console.print(f"[green]✓[/green] Using {llm.provider} ({llm.model})\n")
+        if verbose:
+            console.print(f"[green]✓[/green] Using {llm.provider} ({llm.model})\n")
+        elif not verbose:
+            console.print(f"[dim]Using {llm.provider} ({llm.model})[/dim]\n")
     except Exception as e:
-        console.print(f"[red]✗ LLM initialization failed:[/red] {str(e)}\n")
+        console.print(f"[red]✗[/red] Could not initialize AI: {str(e)}")
+        console.print("\n[dim]Need help? Try:[/dim]")
+        console.print("  • ollama serve && ollama pull llama3.2")
+        console.print("  • export GEMINI_API_KEY=your-key\n")
         return
 
     # Initialize orchestrator
@@ -67,28 +76,29 @@ def process(input_path, vault, verbose):
 
             progress.update(task, completed=True)
 
-        # Display results
+        # Display results with Apple-style simplicity
         if result.success:
-            console.print(f"\n[green]✓ Successfully processed {input_path.name}[/green]\n")
-            console.print(f"📝 Notes created: {len(result.permanent_notes) + 1}")
-            console.print(f"   • 1 literature note")
-            console.print(f"   • {len(result.permanent_notes)} permanent notes")
-            console.print(f"\n🔗 Links created: {result.links_created}")
-            console.print(f"   • Avg links/note: {result.stats.get('avg_links_per_note', 0):.1f}")
-            console.print(f"\n⏱️  Time: {result.duration_seconds:.1f}s\n")
+            console.print(f"\n[green bold]✓ Done[/green bold] [dim]· {input_path.name}[/dim]\n")
 
-            # Show note titles
-            if result.permanent_notes:
-                console.print("[bold]Permanent notes:[/bold]")
-                for note in result.permanent_notes[:10]:  # Show first 10
-                    console.print(f"  • [cyan]{note.metadata.title}[/cyan]")
-                if len(result.permanent_notes) > 10:
-                    console.print(f"  ... and {len(result.permanent_notes) - 10} more\n")
+            # Clean, minimal stats
+            console.print(f"[bold]{len(result.permanent_notes) + 1}[/bold] atomic notes  [dim]·[/dim]  [bold]{result.links_created}[/bold] connections  [dim]·[/dim]  {result.duration_seconds:.0f}s\n")
+
+            # Show concepts extracted (first 8)
+            if result.permanent_notes and verbose:
+                console.print("[dim]Concepts extracted:[/dim]")
+                for note in result.permanent_notes[:8]:
+                    console.print(f"  · {note.metadata.title}")
+                if len(result.permanent_notes) > 8:
+                    console.print(f"  [dim]· {len(result.permanent_notes) - 8} more[/dim]")
+                console.print()
         else:
-            console.print(f"\n[red]✗ Processing failed[/red]\n")
-            for error in result.errors:
-                console.print(f"  • {error}")
-            console.print()
+            console.print(f"\n[red]✗ Failed[/red] [dim]· {input_path.name}[/dim]\n")
+            if verbose:
+                for error in result.errors:
+                    console.print(f"  [dim]·[/dim] {error}")
+                console.print()
+            else:
+                console.print("[dim]Run with --verbose to see details[/dim]\n")
 
     else:
         # Directory
@@ -96,10 +106,10 @@ def process(input_path, vault, verbose):
         files = list(input_path.glob(pattern))
 
         if not files:
-            console.print(f"[yellow]No {pattern} files found in {input_path}[/yellow]\n")
+            console.print(f"[dim]No PDF files found in {input_path}[/dim]\n")
             return
 
-        console.print(f"Found {len(files)} files to process\n")
+        console.print(f"[dim]Processing {len(files)} files...[/dim]\n")
 
         results = []
         with Progress(
@@ -107,29 +117,27 @@ def process(input_path, vault, verbose):
             TextColumn("[progress.description]{task.description}"),
             console=console,
         ) as progress:
-            task = progress.add_task(f"Processing...", total=len(files))
+            task = progress.add_task("", total=len(files))
 
             for file_path in files:
-                progress.update(task, description=f"Processing {file_path.name}...")
+                progress.update(task, description=f"{file_path.name}")
                 result = orchestrator.process(file_path)
                 results.append(result)
                 progress.advance(task)
 
-        # Batch summary
+        # Batch summary - Apple-style clean
         succeeded = sum(1 for r in results if r.success)
         failed = len(results) - succeeded
         total_notes = sum(1 + len(r.permanent_notes) for r in results)
         total_links = sum(r.links_created for r in results)
         total_time = sum(r.duration_seconds for r in results)
 
-        console.print(f"\n[green]✓ Batch processing complete[/green]\n")
-        console.print(f"📁 Files: {len(results)} processed")
-        console.print(f"   • [green]{succeeded} succeeded[/green]")
-        if failed > 0:
-            console.print(f"   • [red]{failed} failed[/red]")
-        console.print(f"\n📝 Notes created: {total_notes}")
-        console.print(f"🔗 Links created: {total_links}")
-        console.print(f"⏱️  Total time: {total_time:.1f}s\n")
+        if failed == 0:
+            console.print(f"\n[green bold]✓ Done[/green bold] [dim]· {len(results)} files[/dim]\n")
+        else:
+            console.print(f"\n[yellow bold]⚠ Completed with issues[/yellow bold] [dim]· {succeeded} succeeded, {failed} failed[/dim]\n")
+
+        console.print(f"[bold]{total_notes}[/bold] atomic notes  [dim]·[/dim]  [bold]{total_links}[/bold] connections  [dim]·[/dim]  {total_time:.0f}s\n")
 
 
 @cli.command()
