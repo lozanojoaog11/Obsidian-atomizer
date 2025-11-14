@@ -37,6 +37,7 @@ class NoteMetadata:
     lyt_mocs: List[str] = field(default_factory=list)
     lyt_fluid_frameworks: List[str] = field(default_factory=list)
     lyt_context: Optional[str] = None
+    moc_note_count: int = 0  # For MOC notes: count of notes in this map
 
     # === ZETTELKASTEN ===
     zk_permanent_note_type: Optional[str] = None  # concept, principle, model, evidence
@@ -95,7 +96,8 @@ class NoteMetadata:
             'lyt': {
                 'mocs': self.lyt_mocs,
                 'fluid_frameworks': self.lyt_fluid_frameworks,
-                'context': self.lyt_context
+                'context': self.lyt_context,
+                'moc_note_count': self.moc_note_count
             },
             'zettelkasten': {
                 'permanent_note_type': self.zk_permanent_note_type,
@@ -199,6 +201,7 @@ class Note:
             lyt_mocs=meta_dict.get('lyt', {}).get('mocs', []),
             lyt_fluid_frameworks=meta_dict.get('lyt', {}).get('fluid_frameworks', []),
             lyt_context=meta_dict.get('lyt', {}).get('context'),
+            moc_note_count=meta_dict.get('lyt', {}).get('moc_note_count', 0),
             zk_permanent_note_type=meta_dict.get('zettelkasten', {}).get('permanent_note_type'),
             zk_connections_count=meta_dict.get('zettelkasten', {}).get('connections_count', 0),
             zk_connections_quality=meta_dict.get('zettelkasten', {}).get('connections_quality', 0.0),

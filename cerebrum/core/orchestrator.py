@@ -5,6 +5,8 @@ Pipeline:
 2. Classificador: text → taxonomy
 3. Destilador: text + taxonomy → atomic notes
 4. Conector: notes → semantic links
+5. MOC Agent: notes + classification → Maps of Content
+6. Save: persist all notes to vault
 
 Validates at each step. Returns complete result.
 """
@@ -18,6 +20,7 @@ from cerebrum.core.extractor import Extractor
 from cerebrum.core.classificador import ClassificadorAgent
 from cerebrum.core.destilador import DestiladorAgent
 from cerebrum.core.conector import ConectorAgent
+from cerebrum.core.moc_agent import MOCAgent
 from cerebrum.services.llm_service import LLMService
 
 
@@ -29,6 +32,8 @@ class ProcessingResult:
         self.stages = {}
         self.literature_note = None
         self.permanent_notes = []
+        self.mocs_created = []
+        self.mocs_updated = []
         self.links_created = 0
         self.errors = []
         self.warnings = []
@@ -52,6 +57,16 @@ class ProcessingResult:
                     'domain': n.metadata.domain,
                     'type': n.metadata.zk_permanent_note_type
                 } for n in self.permanent_notes
+            ],
+            'mocs_created_count': len(self.mocs_created),
+            'mocs_updated_count': len(self.mocs_updated),
+            'mocs': [
+                {
+                    'title': m.metadata.title,
+                    'id': m.metadata.id,
+                    'note_count': m.metadata.moc_note_count,
+                    'status': m.metadata.status
+                } for m in (self.mocs_created + self.mocs_updated)
             ],
             'links_created': self.links_created,
             'errors': self.errors,
@@ -79,6 +94,7 @@ class Orchestrator:
         self.classificador = ClassificadorAgent(llm_service)
         self.destilador = DestiladorAgent(llm_service, vault_path)
         self.conector = ConectorAgent(llm_service, vault_path)
+        self.moc_agent = MOCAgent(vault_path)
 
     def process(self, file_path: Path) -> ProcessingResult:
         """
@@ -148,14 +164,34 @@ class Orchestrator:
 
             result.links_created = connection['links_created']
 
-            # Stage 5: Save to vault
+            # Stage 5: MOC Creation/Update
             if self.verbose:
-                print("💾 Stage 5: Saving to vault...")
+                print("🗺️  Stage 5: Creating/updating MOCs...")
+
+            moc_result = self._run_moc_creation(
+                destillation['permanent_notes'],
+                classification
+            )
+            result.stages['moc'] = moc_result
+
+            result.mocs_created = moc_result['mocs_created']
+            result.mocs_updated = moc_result['mocs_updated']
+
+            # Stage 6: Save to vault
+            if self.verbose:
+                print("💾 Stage 6: Saving to vault...")
 
             save_result = self.destilador.save_notes(
                 result.literature_note,
                 result.permanent_notes
             )
+
+            # Save MOCs
+            for moc in result.mocs_created + result.mocs_updated:
+                self.moc_agent.save_moc(moc)
+                if self.verbose:
+                    status = "Created" if moc in result.mocs_created else "Updated"
+                    print(f"   {status}: {moc.metadata.title} ({moc.metadata.moc_note_count} notes)")
 
             # Update links in vault
             self.conector.update_vault_links(result.permanent_notes)
@@ -254,6 +290,20 @@ class Orchestrator:
         connection_result = self.conector.connect_notes(permanent_notes)
 
         return connection_result
+
+    def _run_moc_creation(
+        self,
+        permanent_notes: List,
+        classification: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """Run MOC creation/update stage."""
+
+        moc_result = self.moc_agent.create_or_update_mocs(
+            permanent_notes,
+            classification
+        )
+
+        return moc_result
 
     def _print_summary(self, result: ProcessingResult):
         """Print processing summary."""

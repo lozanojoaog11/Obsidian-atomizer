@@ -80,16 +80,29 @@ def process(input_path, vault, verbose):
         if result.success:
             console.print(f"\n[green bold]✓ Done[/green bold] [dim]· {input_path.name}[/dim]\n")
 
-            # Clean, minimal stats
-            console.print(f"[bold]{len(result.permanent_notes) + 1}[/bold] atomic notes  [dim]·[/dim]  [bold]{result.links_created}[/bold] connections  [dim]·[/dim]  {result.duration_seconds:.0f}s\n")
+            # Clean, minimal stats (include MOCs if any created/updated)
+            moc_count = len(result.mocs_created) + len(result.mocs_updated)
+            if moc_count > 0:
+                console.print(f"[bold]{len(result.permanent_notes) + 1}[/bold] atomic notes  [dim]·[/dim]  [bold]{result.links_created}[/bold] connections  [dim]·[/dim]  [bold]{moc_count}[/bold] MOCs  [dim]·[/dim]  {result.duration_seconds:.0f}s\n")
+            else:
+                console.print(f"[bold]{len(result.permanent_notes) + 1}[/bold] atomic notes  [dim]·[/dim]  [bold]{result.links_created}[/bold] connections  [dim]·[/dim]  {result.duration_seconds:.0f}s\n")
 
-            # Show concepts extracted (first 8)
+            # Show concepts extracted (first 8) in verbose mode
             if result.permanent_notes and verbose:
                 console.print("[dim]Concepts extracted:[/dim]")
                 for note in result.permanent_notes[:8]:
                     console.print(f"  · {note.metadata.title}")
                 if len(result.permanent_notes) > 8:
                     console.print(f"  [dim]· {len(result.permanent_notes) - 8} more[/dim]")
+                console.print()
+
+            # Show MOCs created/updated in verbose mode
+            if moc_count > 0 and verbose:
+                console.print("[dim]MOCs:[/dim]")
+                for moc in result.mocs_created:
+                    console.print(f"  ✓ Created: {moc.metadata.title} ({moc.metadata.moc_note_count} notes)")
+                for moc in result.mocs_updated:
+                    console.print(f"  ↻ Updated: {moc.metadata.title} ({moc.metadata.moc_note_count} notes)")
                 console.print()
         else:
             console.print(f"\n[red]✗ Failed[/red] [dim]· {input_path.name}[/dim]\n")
@@ -130,6 +143,7 @@ def process(input_path, vault, verbose):
         failed = len(results) - succeeded
         total_notes = sum(1 + len(r.permanent_notes) for r in results)
         total_links = sum(r.links_created for r in results)
+        total_mocs = sum(len(r.mocs_created) + len(r.mocs_updated) for r in results)
         total_time = sum(r.duration_seconds for r in results)
 
         if failed == 0:
@@ -137,7 +151,10 @@ def process(input_path, vault, verbose):
         else:
             console.print(f"\n[yellow bold]⚠ Completed with issues[/yellow bold] [dim]· {succeeded} succeeded, {failed} failed[/dim]\n")
 
-        console.print(f"[bold]{total_notes}[/bold] atomic notes  [dim]·[/dim]  [bold]{total_links}[/bold] connections  [dim]·[/dim]  {total_time:.0f}s\n")
+        if total_mocs > 0:
+            console.print(f"[bold]{total_notes}[/bold] atomic notes  [dim]·[/dim]  [bold]{total_links}[/bold] connections  [dim]·[/dim]  [bold]{total_mocs}[/bold] MOCs  [dim]·[/dim]  {total_time:.0f}s\n")
+        else:
+            console.print(f"[bold]{total_notes}[/bold] atomic notes  [dim]·[/dim]  [bold]{total_links}[/bold] connections  [dim]·[/dim]  {total_time:.0f}s\n")
 
 
 @cli.command()
