@@ -5,7 +5,9 @@ from pathlib import Path
 from typing import Dict, Any, Callable
 import uuid
 
-# Add parent directory to path to import cerebrum
+# Add project root to path to import cerebrum
+# From: cerebrum-web/backend/app/services/processor.py
+# To: project root (4 levels up)
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent.parent))
 
 from cerebrum.core.orchestrator import Orchestrator
