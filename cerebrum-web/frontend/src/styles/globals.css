@@ -1,0 +1,140 @@
+/* Cerebrum - Apple/Obsidian Design System */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Smooth scrolling */
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-primary-900 text-primary-200 font-body;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display font-semibold;
+  }
+
+  /* Remove default button styles */
+  button {
+    @apply outline-none;
+  }
+}
+
+@layer components {
+  /* Glass morphism effect (Apple-style) */
+  .glass {
+    background: rgba(42, 42, 42, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  /* Card style */
+  .card {
+    @apply bg-primary-800 rounded-apple-md p-6 border border-primary-600/30;
+  }
+
+  /* Button primary */
+  .btn-primary {
+    @apply bg-accent-purple text-white px-6 py-3 rounded-apple-sm font-medium;
+    @apply hover:bg-accent-purple/90 active:scale-98;
+    @apply transition-all duration-200;
+  }
+
+  /* Button secondary */
+  .btn-secondary {
+    @apply bg-primary-700 text-primary-200 px-6 py-3 rounded-apple-sm font-medium;
+    @apply hover:bg-primary-600 active:scale-98;
+    @apply transition-all duration-200;
+  }
+
+  /* Input style */
+  .input {
+    @apply bg-primary-800 border border-primary-600 rounded-apple-sm px-4 py-3;
+    @apply text-primary-200 placeholder:text-primary-500;
+    @apply focus:border-accent-purple focus:ring-2 focus:ring-accent-purple/30;
+    @apply transition-all duration-200 outline-none;
+  }
+
+  /* Drop zone */
+  .drop-zone {
+    @apply border-2 border-dashed border-primary-600 rounded-apple-lg;
+    @apply hover:border-accent-purple hover:bg-primary-800/50;
+    @apply transition-all duration-300;
+  }
+
+  .drop-zone.active {
+    @apply border-accent-purple bg-primary-800/50 shadow-glow-purple;
+  }
+}
+
+@layer utilities {
+  /* Scale animations */
+  .scale-98 {
+    transform: scale(0.98);
+  }
+
+  .scale-102 {
+    transform: scale(1.02);
+  }
+
+  /* Fade in animation */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-up {
+    animation: fadeInUp 400ms ease-out;
+  }
+
+  /* Pulse animation for processing */
+  @keyframes pulse-glow {
+    0%, 100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.8;
+      transform: scale(1.05);
+    }
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  /* Skeleton loading */
+  .skeleton {
+    @apply bg-primary-700 animate-pulse rounded;
+  }
+}
+
+/* Scrollbar styling (Obsidian-like) */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-primary-900;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-primary-600 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-primary-500;
+}
